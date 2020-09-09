@@ -5,7 +5,6 @@ Puissance 4 matrice 6x12.
 xoxo C'est la puissance xoxo
 """
 
-from minimax import MinimaxAlphaBeta
 
 # _____________________________________________________________ Heuristique
 
@@ -587,7 +586,75 @@ def TerminalTest_Ut(s, lastplayed, jetons):
 
 # _______________________ MINIMAX
 
+def removeCoup(s, a):  # Permet d'éviter les copies en ajoutant un coup dans une matrice, l'envoyer dans une fonction, puis retirer ce coup
+    s[a[0]][a[1]] = " "
+    return s
 
+
+def MinimaxAlphaBeta(s, i, j, p, jetons):
+    v = MaxValueAlphaBeta(s, float('-inf'), float('inf'), i, j, p, jetons)  # Max car c'est à son tour de jouer
+    a = []           # v[0] est associé au score, les autres indexes, la position
+    a.append(v[1])  # i
+    a.append(v[2])  # j
+    return a
+
+
+def MaxValueAlphaBeta(s, alpha, beta, i, j, p, jetons):
+
+    end, sc = TerminalTest_Ut(s, [i, j], jetons)
+    if end:  # impossibilité de continuer
+        return [sc, None, None]  # -1, 0 ou 1
+
+    if p == 0:
+        return [valeur_matrice(s), None, None]
+    p -= 1
+
+    v = [float('-inf'), None, None]  # initialiser v au "minimum" possible : il prendra une vrai valeur à la prochaine comparaison
+
+    # position correspond à ce score
+    for a in Actions(s):
+        i, j = a[0], a[1]
+        s[i][j] = 'X'
+        jetons -= 1
+        min_value = MinValueAlphaBeta(s, alpha, beta, i, j, p, jetons)[0]  # on récupère la première valeur qui correspond au score
+        s = removeCoup(s, a)
+
+        # Si le nouveau score est meilleur que le précédent on actualise la nouvel position, sinon on garde l'ancienne
+        v = [max(v[0], min_value), i if min_value > v[0] else v[1], j if min_value > v[0] else v[2]]
+
+        if v[0] >= beta:
+            return v
+        alpha = max(alpha, v[0])
+
+    return v  # Retourne [-1, 0 ou 1 ; Position]
+
+
+def MinValueAlphaBeta(s, alpha, beta, i, j, p, jetons):
+
+    end, sc = TerminalTest_Ut(s, [i, j], jetons)
+    if end:
+        return [sc, None, None]  # -1, 0 ou 1
+
+    if p == 0:
+        return [valeur_matrice(s), None, None]
+    p -= 1
+
+    v = [float('inf'), None, None]
+
+    for a in Actions(s):
+        i, j = a[0], a[1]
+        s[i][j] = 'O'
+        jetons -= 1
+        max_value = MaxValueAlphaBeta(s, alpha, beta, i, j, p, jetons)[0]
+        s = removeCoup(s, a)
+
+        v = [min(v[0], max_value), i if max_value < v[0] else v[1], j if max_value < v[0] else v[2]]
+
+        if v[0] <= alpha:
+            return v
+        beta = min(beta, v[0])
+
+    return v
 
 # _______________________
 
