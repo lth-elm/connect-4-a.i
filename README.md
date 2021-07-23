@@ -1,32 +1,32 @@
-# I.A Puissance 4
+# A.I Connect 4
 
-## Présentation
+## Presentation
 
-Algorithme d'intelligence artificielle pour un puissance 4 sur un plateau **12x6** limité à **42 jetons** par joueur (paramètres modifiables dans le code) reposant sur l'algorithme **Minimax** avec élagage **Alpha-Beta** et des **heuristiques** permettant de s'arrêter à certaines **profondeur** (- de 10sec pour une profondeur 4).
+Artificial intelligence algorithm for a connect 4 game on a **12x6** board limited to **42 tokens** per player (parameters adjustable in the code) based on the **Minimax** algorithm with **Alpha-Beta** pruning and **heuristics** allowing to stop at a certain **depth** (- 10sec for a depth of 4).
 
-*Algorithme presque totalement optimisé : la seul manière de gagner et d'avoir 2 coups gagnants différents à un tour d'intervalle et lié.*
+*Algorithm almost perfectly optimized: the only way to win is by having 2 different winning moves at one turn interval and connected.*
 
-## Choix des Heuristiques
+## Heuristics selection
 
-Le choix de la meilleur position à jouer va dépendre du **score** renvoyés par les différents chemins calculés par l'algorithme du minimax alpha-beta.
+Choosing the best position to play will depend on the **score** returned by the different paths calculated by the alpha-beta minimax algorithm.
 
-Chaque "sous-setup" vaudra un certain **score** qui sera sommé à d'autre sous-setup pour enfin renvoyer un score total basé sur la configuration entière de notre plateau de jeu.
+Each "sub-setup" will be given a certain **score** which will be summed to other sub-setups to finally return a total score based on the entire configuration of our game board.
 
-***On peut illustrer nos heuristiques de la manière suivante :***
+***Our heuristics can be illustrated as follows :***
 
-Le score s’il y a victoire au prochain tour : **+ 100 000** i.e position suivante accessible et ce sera le tour de l'i.a de jouer.
+The score if next round is assured to be a winner : **+ 100,000** i.e. next position is accessible and it will be the a.i turn to play.
 
-Dans le test terminal : **+ 5 000 000** afin d’être suffisament à l'abri des score à + 100 000 étant donné que la matrice est assez grande.
+In the final test : **+ 5,000,000** in order to be safe enough from the'+ 100,000' scores since the matrix is relatively large.
 
-### Lignes et Diagonales
+### Lines and Diagonals
 
-* ***2 cases :***
+* ***2 slots :***
 
-*2 emplacements libres sur une suite de 4 sinon **score += 0**.*
+*2 spaces on a sequence of 4 otherwise **score += 0**.*
 
-**score += 1 000**
+**score += 1,000**
 
-Pour ces setups, score = 2 000.
+For these setups, score = 2,000.
 
 |   |   |       |       |   |   |       |   |   |   |
 |---|---|-------|-------|---|---|-------|---|---|---|
@@ -35,13 +35,13 @@ Pour ces setups, score = 2 000.
 |   |   |       | 1     | 2 | 3 | 4     |   |   |   |
 
 
-* ***3 cases :***
+* ***3 slots :***
 
-*1 emplacement libre sur une suite de 4 sinon **score += 0**.*
+*1 space on a sequence of 4 otherwise **score += 0**.*
 
-**score += 10 000**
+**score += 10,000**
 
-Pour ces setups, score = 10 000 (la suite de gauche ne mène à rien car il manque 1 emplacement libre au dessus sur la suite de 4).
+For these setups, score = 10,000 (the left sequence is useless because there is 1 missing space at the top so we don't sum it with the other valid one).
 
 |   |       |   |       |   |
 |---|-------|---|-------|---|
@@ -51,23 +51,23 @@ Pour ces setups, score = 10 000 (la suite de gauche ne mène à rien car il manq
 |   | O     |   | **X** | 1 |
 
 
-* ***Atteindre l'emplacement libre (diagonales)***
+* ***Reaching the free slot (diagonals)***
 
-Atteignable au prochain tour (1 case) : **-0**
+Reachable in next round (1 space) : **-0**
 
-2 cases : **-20**
+2 spaces : **-20**
 
-3 cases : **-40** (ajoutés au précédent -20)
+3 spaces : **-40** (added to the previous -20)
 
-4 cases : **-40** (ajoutés au précédent)
+4 spaces : **-40** (added to the previous)
 
 ...
 
-Pour ce setup, score = 10 000 - 20 - 40 = 9 940
+For this setup, score = 10,000 - 20 - 40 = 9,940
 
-3 à la suite avec emplacement libre sur la suite de 4 => 10 000.
+3 in a row with a free space on a sequence of 4 => 10,000.
 
-Puis 3 cases avant d'atteindre cet emplacement libre => -20 + (-40). 
+Then 3 more cells before reaching this free space => -20 + (-40). 
 
 |   |       |       |       |   |   |
 |---|-------|-------|-------|---|---|
@@ -77,11 +77,11 @@ Puis 3 cases avant d'atteindre cet emplacement libre => -20 + (-40).
 |   | **X** |       |       | O |   |
 
 
-* ***A ne pas considérer***
+* ***To be disregarded***
 
-2 moves de 3 cases qui se gagnent en jouant le jeton à la même position ne doivent être compté qu’une fois, en effet, le premier état nous offre moins de solution que le deuxième.
+2 moves of 3 filled slots that are won by playing the coin at the same position should be counted only once since the first state offers less solution than the second..
 
-*score += 10 000*
+*score += 10,000*
 
 |   |   |   |   |   |   |
 |---|---|---|---|---|---|
@@ -99,11 +99,11 @@ versus
 |   |   |   |   |   | X |   |
 |   |   |   |   |   | X |   |
 
-*score += 10 000 + 10 000*
+*score += 10,000 + 10,000*
 
-* ***Exploiter une faille chez l'adversaire***
+* ***Exploiting a weakness in the opponent***
 
-En jouant exprès à une certaine position on peut influencer l’adversaire à jouer une position lui étant favorable : aligner 3 *O*, or si sa profondeur ne va pas plus loin ou qu’il cherche à gagner avant de se défendre alors on pourra exploiter cette faille pour jouer un coup gagnant.
+By deliberately playing in a certain position you can trick your opponent into playing a position that is favorable to him : line up 3 *O*, but if his depth does not go any further or if he tries to win before defending himself, then you can exploit this flaw to play a winning move.
 
 |   |   |   |   |   |   |   |
 |---|---|---|---|---|---|---|
